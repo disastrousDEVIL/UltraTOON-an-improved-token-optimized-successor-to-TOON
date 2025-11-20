@@ -1,0 +1,11 @@
+{
+    "data": {
+      "users": [
+        { "id": 1, "name": "Alice", "age": 22, "role": "developer" },
+        { "id": 2, "name": "Bob", "age": 25, "role": "designer" },
+        { "id": 3, "name": "Charlie", "age": 30, "role": "manager" }
+      ]
+    },
+    "question": "Who is the oldest user and what is their role?"
+  }
+  
