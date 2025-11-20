@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+langchain
+langchain_core
+langchain_openai
+langgraph
+langsmith
+tiktoken
+python-dotenv
+pydantic
+numpy
