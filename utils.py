@@ -1,47 +1,42 @@
 import time
 from langchain_openai import ChatOpenAI
-from lagsmith.wrappers import wrap_openai
-import numpy as np
+from langsmith import traceable
 
-llm=wrap_openai(ChatOpenAI(model="gpt-4o-mini",temperature=0))
+# Correct OpenAI LangChain model
+llm = ChatOpenAI(
+    model="gpt-5-nano-2025-08-07",
+    temperature=0
+)
 
-def run_llm(question:str,context:str):
-    """Sends a Real prompt to LLM:
-    DATA:
-    <json or toon>
-
-    QUESTION:
-    <question>
-
-    Returns:
-    - asnwer (string)
-    - latency (seconds)
-    - usage (prompt_tokens,completion_tokens,total_tokens)
+@traceable  # This enables LangSmith tracing for this function
+def run_llm(question: str, context: str):
+    """
+    Sends a REAL prompt to the LLM and returns:
+    - answer content
+    - latency
+    - true token usage (prompt + completion)
     """
 
-    prompt:f"DATA: \n{context}\n\nQUESTION:\n{question}"
+    prompt = f"DATA:\n{context}\n\nQUESTION:\n{question}"
 
-    start_time=time.time()
-    response=llm.invoke(prompt)
-    latency=time.time()-start_time
-    
-    usage=response.response_metadata.get("token_usage",{})
+    start = time.time()
+    response = llm.invoke(prompt)
+    latency = time.time() - start
 
-    return response.content,latency,usage
+    usage = response.response_metadata.get("token_usage", {})
 
-def evaluate_quality(ans_json:str,ans_toon:str,ans_ultra:str):
-    """
-    Very lightweight evaluation:
-    Compares the lengths of asnwers as a proxy for similarity.
-    You can later upgrade this to embeddings or ROUGE"""
+    return response.content, latency, usage
 
-    def score(a,b):
-        if len(a)==0 or len(b)==0:
+
+def evaluate_quality(ans_json: str, ans_toon: str, ans_ultra: str):
+    """Simple length similarity measure."""
+    def score(a, b):
+        if not a or not b:
             return 0
-        return 1-abs(len(a)-len(b))/max(len(a),1)
+        return 1 - abs(len(a) - len(b)) / max(len(a), 1)
 
-    return{
-        "json_vs_toon":score(ans_json,ans_toon),
-        "json_vs_ultra":score(ans_json,ans_ultra),
-        "toon_vs_ultra":score(ans_toon,ans_ultra)
+    return {
+        "json_vs_toon": score(ans_json, ans_toon),
+        "json_vs_ultra": score(ans_json, ans_ultra),
+        "toon_vs_ultra": score(ans_toon, ans_ultra)
     }

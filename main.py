@@ -13,5 +13,5 @@ class BenchmarkRequest(BaseModel):
 
 @app.post("/run")
 async def run_benchmark(request: BenchmarkRequest):
-    result=graph_runner(req.data,req.question)
+    result=graph_runner(request.data,request.question)
     return result
