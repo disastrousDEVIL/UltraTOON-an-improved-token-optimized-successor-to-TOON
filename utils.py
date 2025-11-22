@@ -4,7 +4,7 @@ from langsmith import traceable
 
 # Correct OpenAI LangChain model
 llm = ChatOpenAI(
-    model="gpt-5-mini-2025-08-07",
+    model="gpt-5-mini-2025-08-07", # gpt-5-nano-2025-08-07 tried both and mini is better for lesser token and cost effective
     temperature=0
 )
 
