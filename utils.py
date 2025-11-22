@@ -4,7 +4,7 @@ from langsmith import traceable
 
 # Correct OpenAI LangChain model
 llm = ChatOpenAI(
-    model="gpt-5-nano-2025-08-07",
+    model="gpt-5-mini-2025-08-07",
     temperature=0
 )
 
