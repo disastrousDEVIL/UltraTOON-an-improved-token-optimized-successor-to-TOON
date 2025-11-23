@@ -1,77 +1,66 @@
-Got it Krish — here is your **final, polished, production-ready README.md**, fully updated for **SONIC**, fully integrated with your **real benchmark images**, and written cleanly in a research-grade tone.
+# **SONIC
 
-Everything is aligned, structured, and ready to paste directly into GitHub.
+Schema Optimized Notation for Intelligent Compression**
 
----
+SONIC is an experimental ultra-compact data representation format designed to reduce prompt tokens dramatically when sending large structured datasets into Large Language Models.
+It is the next conceptual evolution after TOON and aims to be a practical successor for token-efficient LLM computing.
 
-# **SONIC — Structured Object Notation with Intelligent Compression**
-
-SONIC is a compact, lossless data representation format designed to minimize prompt tokens in LLM pipelines while preserving full semantic fidelity.
-It extends TOON by introducing schema-driven compression, single-letter field aliases, and optional semantic label encoding for maximum token efficiency.
-
-Benchmarks on 2000-row datasets show that SONIC reduces **total LLM tokens by more than 30 percent** compared to TOON, without degrading reasoning accuracy.
+SONIC compresses both structure and semantics using deterministic schema shorthand, column encoding, and predictable formatting.
+The result is smaller prompts, lower cost, and higher context-window availability without losing meaning.
 
 ---
 
-## **1. Abstract**
+# **1. Abstract**
 
-Large Language Models consume most tokens on *structure*, not meaning.
-JSON is verbose. TOON is lighter but still repeats long field names and uncompressed values.
+Language Models waste a large number of tokens on structural overhead rather than actual information.
+JSON is readable but extremely verbose. Even TOON, although lighter, still repeats long field names and consumes space.
 
-**SONIC solves this** by introducing:
+SONIC collapses all repeated structure using a deterministic schema mapping with one-letter aliases, encoded categorical values, and a rigid minimal syntax.
+This creates a representation that is lossless, reversible, and interpreted perfectly by modern LLMs.
 
-* Deterministic schema aliasing
-* Minimal punctuation
-* Optional semantic compression
-* Structurally predictable formatting
-
-The result is:
-
-* **Dramatically fewer prompt tokens**
-* **Improved context efficiency**
-* **Lower inference cost**
-* **Identical semantic interpretation**
+Experiments across GPT-5 Mini and GPT-5 Nano with datasets of 1000 and 2000 rows show consistent savings in both prompt and total tokens.
 
 ---
 
-## **2. Motivation**
+# **2. Motivation**
 
-Plain JSON scales poorly in LLM workloads:
+When working with LLM agents or high volume inference systems, structured data often dominates prompt space.
+This leads to higher cost, slower inference, and quick exhaustion of context limits.
 
-* Repeated field names waste tokens
-* Deep structures trigger exponential token growth
-* Context-window usage becomes inefficient
-* Costs increase dramatically for large datasets
+We asked a simple question:
 
-TOON improved things, but structural redundancy still limits efficiency.
+**How small can a structured dataset be while still being perfectly reasoned about by an LLM**
 
-We asked:
-**How small can a data format be while staying reversible, readable by LLMs, and semantically accurate?**
-
-SONIC is that answer.
+SONIC is built around that answer.
 
 ---
 
-## **3. JSON vs TOON vs SONIC**
+# **3. JSON vs TOON vs SONIC**
 
-### **JSON — verbose**
+### JSON
+
+Verbose, key-heavy, large footprint.
 
 ```
 {
   "users": [
-    {"id": 1, "name": "Alice", "age": 30}
+    {"id":1, "name":"Alice", "age":30}
   ]
 }
 ```
 
-### **TOON — reduced punctuation**
+### TOON
+
+Reduced syntax, but still repeats full field names.
 
 ```
 users[1]{id,name,age}:
   1,Alice,30
 ```
 
-### **SONIC — minimal & compressed**
+### SONIC
+
+Deterministic schema + encoded categorical values + minimal notation.
 
 ```
 SCHEMA: i=id; n=name; a=age
@@ -80,135 +69,126 @@ u[1]{i,n,a}:
   1,Alice,30
 ```
 
-SONIC removes **all unnecessary structure**, while keeping format predictability that LLMs rely on.
+This minimal form is still fully reversible.
 
 ---
 
-## **4. SONIC Specification (v1)**
+# **4. SONIC Specification (v1)**
 
-### **4.1 Schema Block**
+### Schema Block
 
-Defines deterministic, minimal field aliases:
+The top of every SONIC payload.
 
 ```
 SCHEMA: i=id; n=name; a=age; r=role; c=city
 ```
 
-Rules:
+Rules
 
-* First unused character becomes alias
-* Collisions resolved with next available character
-* Always appears first
-* Full reversibility guaranteed
+* first unused letter becomes alias
+* collisions resolve with next available character
+* stable ordering
+* human readable and reversible
+
+### Header Block
+
+Defines dataset shorthand, size, and column order.
+
+```
+u[1000]{i,n,a,r,c}:
+```
+
+### Body Block
+
+Pure values, comma separated, no extra structure.
+
+```
+  1,User_0001,26,d,c
+  2,User_0002,54,e,b
+```
+
+SONIC can also use categorical encodings for fields with repeating values such as role or city.
 
 ---
 
-### **4.2 Header Block**
+# **5. Benchmark Results**
 
-```
-u[2000]{i,n,a,r,c}:
-```
+All benchmarks were run using the same question
+**Who is the oldest user and what is their role**
 
-Meaning:
+Two models were used
 
-* `u` → dataset name compressed to first letter
-* `2000` → row count
-* `{i,n,a,r,c}` → schema column order
+* GPT-5 Mini on 1000 rows
+* GPT-5 Nano on 2000 rows
 
 ---
 
-### **4.3 Body Block (Rows)**
+## **5.1 GPT-5 Mini — 1000 Rows**
 
-```
-1,User_0001,26,d,c
-2,User_0002,53,e,c
-```
+### SONIC vs TOON Input Comparison
 
-Optional value-encoding block:
+*1000 entries*
 
-```
-ENCODE role: a=analyst; d=designer; e=developer; n=engineer; m=manager
-ENCODE city: b=Bangalore; c=Chennai; d=Delhi; h=Hyderabad; m=Mumbai
-```
+![GPT-5 Mini Input Comparison](assets/gpt_5_mini_1000_entries.png)
 
-This is how SONIC achieves **maximum structural efficiency** while remaining lossless.
+### SONIC vs TOON Token Usage
+
+*1000 entries*
+
+![GPT-5 Mini Token Comparison](assets/gpt_5_mini_1000_results.png)
 
 ---
 
-## **5. Benchmark Results**
+## **5.2 GPT-5 Nano — 2000 Rows**
 
-Benchmarks were executed on 2000-row datasets using OpenAI GPT-5 models.
-Question asked in both cases:
+### SONIC vs TOON Input Comparison
 
-**“Who is the oldest user and what is their role?”**
+*2000 entries*
 
-SONIC vs TOON input size & structure:
+![GPT-5 Nano Input Comparison](assets/result2_2000_entries.png)
 
-### **5.1 SONIC Input (Left) vs TOON Input (Right)**
+### SONIC vs TOON Token Usage
 
-Smallest-possible structural representation vs uncompressed TOON.
+*2000 entries*
 
-![SONIC vs TOON Input Comparison](assets/result_2000_entries.png)
-
----
-
-### **5.2 SONIC vs TOON Token Costs**
-
-SONIC shows a dramatic reduction in token usage.
-
-![SONIC vs TOON Token Costs](assets/result2_2000_entries.png)
+![GPT-5 Nano Token Comparison](assets/result_2000_entries.png)
 
 ---
 
-### **5.3 Detailed Token Savings**
+# **6. Token and Cost Summary**
 
-| Format            | Prompt Tokens | Completion Tokens | Total Tokens |
-| ----------------- | ------------- | ----------------- | ------------ |
-| TOON (2000 rows)  | 32638         | 12291             | **44929**    |
-| SONIC (2000 rows) | 27107         | 2859              | **29966**    |
-| **Savings**       | **−5531**     | **−9432**         | **−14963**   |
+Costs use standard 2025 pricing assumptions.
 
-SONIC reduces **total token cost by ~33 percent**, while preserving answer quality.
-
----
-
-## **6. Usage**
-
-### **Convert JSON → SONIC**
-
-```python
-from converters import json_to_ultra_toon as json_to_sonic
-
-with open("test_data.json") as f:
-    data = json.load(f)
-
-print(json_to_sonic(data))
-```
-
-### **Convert JSON → TOON**
-
-```python
-from converters import json_to_toon
-```
+| Model      | Rows | Format | Total Tokens | Estimated Cost |
+| ---------- | ---- | ------ | ------------ | -------------- |
+| GPT-5 Mini | 1000 | JSON   | 36310        | 0.0130 USD     |
+| GPT-5 Mini | 1000 | TOON   | 18388        | 0.0089 USD     |
+| GPT-5 Mini | 1000 | SONIC  | 14938        | 0.0069 USD     |
+|            |      |        |              |                |
+| GPT-5 Nano | 2000 | JSON   | 76291        | 0.0063 USD     |
+| GPT-5 Nano | 2000 | TOON   | 44929        | 0.0065 USD     |
+| GPT-5 Nano | 2000 | SONIC  | 29966        | 0.0020 USD     |
 
 ---
 
-## **7. Project Structure**
+# **7. Project Structure**
 
 ```
 SONIC/
 │
-├── assets/                      
+├── assets/
+│   ├── gpt_5_mini_1000_entries.png
+│   ├── gpt_5_mini_1000_results.png
 │   ├── result_2000_entries.png
 │   ├── result2_2000_entries.png
 │
-├── converters.py                
-├── data_creator.py              
-├── graph.py                     
-├── main.py                      
-├── utils.py                     
+├── converters.py
+├── data_creator.py
+├── graph.py
+├── main.py
+├── utils.py
 │
-├── test_data.json               
+├── test_data.json
 ├── test_data_1000.json
 ├── test_data_2000.json
 │
@@ -217,26 +197,28 @@ SONIC/
 
 ---
 
-## **8. Future Work**
+# **8. Future Work**
 
-* SONIC+ (advanced alias & label compression)
-* Bidirectional JSON ↔ SONIC validator
-* Multi-table & relational SONIC structures
-* Chunked SONIC for streaming into small context windows
-* SONIC schema registry
-* Potential RFC standardization
+* SONIC v2 with semantic block compression
+* Automatic reversible SONIC to JSON compiler
+* Multi table support (relational SONIC)
+* Chunked and streaming SONIC for massive datasets
+* SONIC aware agents for long context tasks
+* A formal RFC style specification
 
 ---
 
-## **9. Author**
+# **9. Author**
 
 **Krish Batra**
 Creator of SONIC
-LLM Token Optimization & Data Representation Research
+
+LLM Token Efficiency Researcher
 
 ---
 
-## **10. License**
+# **10. License**
 
-This project is a research artifact.
-Reuse and modification is permitted with attribution.
+This repository is provided as an open research artifact.
+
+You may use, extend, or adapt it with attribution.
