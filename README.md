@@ -1,6 +1,4 @@
-# **SONIC
-
-Schema Optimized Notation for Intelligent Compression**
+# **SONIC - Schema Optimized Notation for Intelligent Compression**
 
 SONIC is an experimental ultra-compact data representation format designed to reduce prompt tokens dramatically when sending large structured datasets into Large Language Models.
 It is the next conceptual evolution after TOON and aims to be a practical successor for token-efficient LLM computing.
@@ -211,6 +209,7 @@ SONIC/
 # **9. Author**
 
 **Krish Batra**
+
 Creator of SONIC
 
 LLM Token Efficiency Researcher
